@@ -40,7 +40,7 @@ public class DbQueueConfiguration {
 
         QueueLocation queueLocation = QueueLocation.builder()
                 .withQueueId(queueId)
-                .withTableName("queue_task")
+                .withTableName("queue_tasks")
                 .withIdSequence("queue_tasks_id_seq")
                 .build();
 
