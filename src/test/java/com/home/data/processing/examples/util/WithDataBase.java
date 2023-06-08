@@ -1,5 +1,7 @@
 package com.home.data.processing.examples.util;
 
+import io.zonky.test.db.postgres.embedded.ConnectionInfo;
+import io.zonky.test.db.postgres.embedded.PreparedDbProvider;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -12,6 +14,7 @@ import org.springframework.test.context.event.ApplicationEventsTestExecutionList
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 import org.springframework.test.context.transaction.TransactionalTestExecutionListener;
 
+import javax.sql.DataSource;
 import java.sql.SQLException;
 
 
@@ -28,7 +31,16 @@ import java.sql.SQLException;
 public class WithDataBase {
 
     @Autowired
+    protected DataSource dataSource;
+
+    @Autowired
     protected JdbcTemplate jdbcTemplate;
+
+    @Autowired
+    protected PreparedDbProvider preparedDbProvider;
+
+    @Autowired
+    protected ConnectionInfo connectionInfoCustom;
 
     /**
      * for debug on embedded postgres

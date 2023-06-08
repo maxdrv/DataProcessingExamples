@@ -2,10 +2,13 @@ package com.home.data.processing.examples.core.model;
 
 import com.home.data.processing.examples.util.WithDataBase;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.BadSqlGrammarException;
+import org.springframework.jdbc.core.JdbcTemplate;
 
+import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
@@ -23,6 +26,12 @@ public class PgEnumTest extends WithDataBase {
                 rs.getString("enumlabel"),
                 rs.getInt("enumsortorder")
         );
+    }
+
+    @BeforeEach
+    void init() {
+        jdbcTemplate.update("DROP CAST IF EXISTS (CHARACTER VARYING AS sortable_type)");
+        jdbcTemplate.update("DROP CAST IF EXISTS (CHARACTER VARYING AS sortable_status)");
     }
 
     @Test
@@ -196,8 +205,15 @@ public class PgEnumTest extends WithDataBase {
     }
 
     /**
-     * https://stackoverflow.com/questions/851758/java-enums-jpa-and-postgres-enums-how-do-i-make-them-work-together
-     * TODO: победить конвертацию типов
+     * Проблема в том, что передавая строку в PG через
+     * {@link java.sql.PreparedStatement#setString(int, String)}
+     * В базу данных PG поступает character varying, который автоматически не кастится в enum
+     * <p>
+     * Как починить описано тут:
+     * @see
+     * <a href="https://stackoverflow.com/questions/851758/java-enums-jpa-and-postgres-enums-how-do-i-make-them-work-together">
+     *     https://stackoverflow.com
+     * </a>
      */
     @Test
     void problemsWithParams() {
@@ -224,6 +240,64 @@ public class PgEnumTest extends WithDataBase {
 
         assertThat(exception.getCause().getMessage())
                 .contains("column \"status\" is of type sortable_status but expression is of type text");
+    }
+
+    /**
+     *
+     * Применение настроек соединения, как описано тут:
+     * @see
+     * <a href="https://stackoverflow.com/questions/851758/java-enums-jpa-and-postgres-enums-how-do-i-make-them-work-together">
+     *     https://stackoverflow.com
+     * </a>
+     * Что произойдет?
+     * Добавляем к строке соединения параметр: stringtype=unspecified
+     * Тогда строки переданные через {@link java.sql.PreparedStatement#setString(int, String)}
+     * не воспринимаются PG как varchar, они отправляются, как untyped значения,
+     * PG попытается самостоятельно определить тип
+     * <a href="https://jdbc.postgresql.org/documentation/use/">
+     *     https://jdbc.postgresql.org
+     * </a>
+     */
+    @Test
+    void fixPgEnumCastWithConnectionParameter() throws SQLException {
+        DataSource ds = preparedDbProvider.createDataSourceFromConnectionInfo(connectionInfoCustom);
+        JdbcTemplate jdbcTemplateCustom = new JdbcTemplate(ds);
+
+        jdbcTemplateCustom.update("insert into sortable(status) values (?)", SortableStatus.ARRIVED_DIRECT.name());
+        jdbcTemplateCustom.update(
+                "update sortable set status = ?", SortableStatus.SHIPPED_DIRECT.name()
+        );
+
+        List<Sortable> res = jdbcTemplate.query("select * from sortable", SortableMapper::toSortable);
+
+        assertThat(res).extracting(Sortable::status).containsExactly(SortableStatus.SHIPPED_DIRECT);
+    }
+
+    /**
+     * Заводим каст в PG, как описано тут:
+     * @see
+     * <a href="https://stackoverflow.com/questions/851758/java-enums-jpa-and-postgres-enums-how-do-i-make-them-work-together">
+     *     https://stackoverflow.com
+     * </a>
+     * Что произойдет?
+     * Сами создаетм каст из varchar в подходящий enum, и там где мы выполняем вставку в колонку с типом enum
+     * появится автоматичесое приведение varchar в enum
+     * <a href="https://www.postgresql.org/docs/current/sql-createcast.html">https://www.postgresql.org</a>
+     *
+     */
+    @Test
+    void fixPgEnumCastWithImplicitCastCreation() {
+        jdbcTemplate.update("CREATE CAST (CHARACTER VARYING as sortable_type) WITH INOUT AS IMPLICIT");
+        jdbcTemplate.update("CREATE CAST (CHARACTER VARYING as sortable_status) WITH INOUT AS IMPLICIT");
+
+        jdbcTemplate.update("insert into sortable(status) values (?)", SortableStatus.ARRIVED_DIRECT.name());
+        jdbcTemplate.update(
+                "update sortable set status = ?", SortableStatus.SHIPPED_DIRECT.name()
+        );
+
+        List<Sortable> res = jdbcTemplate.query("select * from sortable", SortableMapper::toSortable);
+
+        assertThat(res).extracting(Sortable::status).containsExactly(SortableStatus.SHIPPED_DIRECT);
     }
 
 }
