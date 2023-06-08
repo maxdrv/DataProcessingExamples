@@ -16,6 +16,8 @@
 	<properties>
 		<java.version>17</java.version>
 		<db.queue.version>15.1.0</db.queue.version>
+		<postgres.driver.version>42.5.0</postgres.driver.version>
+		<postgres.embedded.version>14.5.0</postgres.embedded.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -51,6 +53,43 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.zonky.test</groupId>
+			<artifactId>embedded-postgres</artifactId>
+			<version>2.0.0</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.zonky.test.postgres</groupId>
+			<artifactId>embedded-postgres-binaries-bom</artifactId>
+			<version>${postgres.embedded.version}</version>
+			<type>pom</type>
+			<scope>import</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.zonky.test.postgres</groupId>
+			<artifactId>embedded-postgres-binaries-darwin-amd64</artifactId>
+			<version>${postgres.embedded.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.zonky.test.postgres</groupId>
+			<artifactId>embedded-postgres-binaries-linux-amd64</artifactId>
+			<version>${postgres.embedded.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.zonky.test.postgres</groupId>
+			<artifactId>embedded-postgres-binaries-linux-amd64-alpine</artifactId>
+			<version>${postgres.embedded.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.zonky.test.postgres</groupId>
+			<artifactId>embedded-postgres-binaries-windows-amd64</artifactId>
+			<version>${postgres.embedded.version}</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>

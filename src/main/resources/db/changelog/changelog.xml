@@ -7,5 +7,6 @@
 
     <include file="event/event.sql" relativeToChangelogFile="true"/>
     <include file="queue/queue_tasks.sql" relativeToChangelogFile="true"/>
+    <include file="sortable/sortable.sql" relativeToChangelogFile="true"/>
 
 </databaseChangeLog>

@@ -8,7 +8,7 @@ Before starting the application locally, you need to start the database
 dbQueue запускается вместе со стартом приложения благодаря
 DbQueueApplicationStartListener
 
-
+    
 Если это spring-boot приложение выключить с помощью SIGINT (signal 2)
 То DbQueue pool отключится благодаря shutdown методу у QueueService
 
