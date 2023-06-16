@@ -9,3 +9,5 @@ services:
       POSTGRES_USER: processing
       POSTGRES_PASSWORD: processing
       POSTGRES_INITDB_ARGS: "-E=UTF8 --lc-collate=C --lc-ctype=C"
+    volumes:
+      - ~/pg_docker_volume/processing/data:/var/lib/postgresql/data
