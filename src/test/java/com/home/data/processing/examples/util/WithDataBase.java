@@ -1,7 +1,5 @@
 package com.home.data.processing.examples.util;
 
-import io.zonky.test.db.postgres.embedded.ConnectionInfo;
-import io.zonky.test.db.postgres.embedded.PreparedDbProvider;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -35,12 +33,6 @@ public class WithDataBase {
 
     @Autowired
     protected JdbcTemplate jdbcTemplate;
-
-    @Autowired
-    protected PreparedDbProvider preparedDbProvider;
-
-    @Autowired
-    protected ConnectionInfo connectionInfoCustom;
 
     /**
      * for debug on embedded postgres

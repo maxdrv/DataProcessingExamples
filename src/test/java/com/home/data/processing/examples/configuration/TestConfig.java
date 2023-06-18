@@ -7,7 +7,6 @@ import org.springframework.context.annotation.Configuration;
 import javax.sql.DataSource;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 
@@ -32,14 +31,5 @@ public class TestConfig {
     public DataSource dataSource(PreparedDbProvider provider, ConnectionInfo connectionInfo) throws SQLException {
         return provider.createDataSourceFromConnectionInfo(connectionInfo);
     }
-
-    @Bean
-    public ConnectionInfo connectionInfoCustom(ConnectionInfo connectionInfo) {
-        String dbName = connectionInfo.getDbName();
-        int port = connectionInfo.getPort();
-        String user = connectionInfo.getUser();
-        return new ConnectionInfo(dbName, port, user, Map.of("stringtype", "unspecified"));
-    }
-
 
 }
